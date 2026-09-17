@@ -4,3 +4,5 @@ python-jose[cryptography]==3.5.0
 bcrypt==5.0.0
 python-multipart==0.0.32
 pydantic==2.13.4
+sqlmodel==0.0.34
+slowapi==0.1.10

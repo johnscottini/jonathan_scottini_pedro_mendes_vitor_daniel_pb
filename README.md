@@ -124,3 +124,23 @@ jupyter notebook eda.ipynb
 O diagrama de fluxo de dados da API (entidades externas, processos, data
 stores, trust boundaries e a tríade CIA aplicada a cada componente) está em
 [`others/dfd.png`](others/dfd.png).
+
+---
+
+## TP2 — em andamento
+
+Esta branch (`tp2/base`) contém as decisões de arquitetura e o esqueleto de
+código a partir do qual o TP2 é desenvolvido. **Antes de começar, leia
+[`docs/CONTRATO_TP2.md`](docs/CONTRATO_TP2.md)**: ele define a divisão de
+tarefas, o modelo de dados, o contrato das rotas, os códigos de resposta e
+quais arquivos não devem ser alterados sem combinar com o time.
+
+Ambiente de desenvolvimento:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r fastapi/requirements-dev.txt   # API + pytest
+pip install -r eda/requirements.txt           # apenas para o notebook de EDA
+pytest tests/                                 # rodar da raiz do repositório
+cd fastapi && uvicorn main:app --reload
+```
