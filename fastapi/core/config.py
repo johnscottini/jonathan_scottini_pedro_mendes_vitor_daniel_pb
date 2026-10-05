@@ -16,6 +16,9 @@ from typing import List
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Versão da API: usada no título do OpenAPI e devolvida pelo GET /health.
+API_VERSION = "0.2.0"
+
 
 def _csv_env(name: str, default: str) -> List[str]:
     """Lê uma variável de ambiente no formato `a,b,c` e devolve uma lista."""

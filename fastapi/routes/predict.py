@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 
+from models.errors import ErrorResponse
 from models.predict import PredictRequest, PredictResponse
 from security.jwt import get_current_user
 
@@ -24,7 +25,15 @@ _DEFAULT_INTENT = "product_inquiry"
 _STUB_CONFIDENCE = 0.5
 
 
-@router.post("/predict", response_model=PredictResponse)
+@router.post(
+    "/predict",
+    response_model=PredictResponse,
+    summary="Prevê a intenção de um ticket (saída simulada)",
+    responses={
+        401: {"model": ErrorResponse, "description": "Token ausente, inválido, expirado ou de usuário não autorizado"},
+        422: {"model": ErrorResponse, "description": "Corpo da requisição inválido"},
+    },
+)
 def predict(payload: PredictRequest, current_user: str = Depends(get_current_user)):
     """Endpoint protegido, ainda não roda um modelo de ML.
 

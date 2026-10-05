@@ -3,13 +3,23 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from core.limiter import login_rate_limit
 from models.auth import Token
+from models.errors import ErrorResponse
 from security.jwt import create_access_token
 from security.users import authenticate_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/token", response_model=Token)
+@router.post(
+    "/token",
+    response_model=Token,
+    summary="Autentica o usuário e emite um token JWT",
+    responses={
+        401: {"model": ErrorResponse, "description": "Usuário ou senha incorretos"},
+        422: {"model": ErrorResponse, "description": "Formulário inválido"},
+        429: {"model": ErrorResponse, "description": "Tentativas de login em excesso"},
+    },
+)
 @login_rate_limit
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     """Autentica o usuário e emite um JWT.

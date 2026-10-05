@@ -68,6 +68,12 @@ modelo de classificação reaproveitar sem tradução.
   (hoje devolve `str`) — precisa de `Depends(get_session)`.
 - A `SECRET_KEY` sai do código e vem de `core.config` / variável de ambiente.
 - Expiração do token: 30 minutos (`ACCESS_TOKEN_EXPIRE_MINUTES`).
+- **Não remover a validação do `sub`** (correção do TP1, Q6): hoje
+  `get_current_user` verifica assinatura, expiração **e** se o `sub` é o usuário
+  autorizado. Com a tabela `User`, essa terceira checagem vira
+  `select(User).where(User.username == sub)` e um 401 quando não encontra — o
+  controle continua existindo, só muda a fonte da verdade. Os testes em
+  `tests/test_auth_jwt.py` cobrem isso e precisam continuar passando.
 
 ---
 
@@ -90,6 +96,12 @@ modelo de classificação reaproveitar sem tradução.
 | Recurso existe mas é de outro usuário | **404** (não 403: 403 confirma que o ID existe) |
 | Campo extra ou inválido no body | **422** |
 | Estourou o rate limit do login | **429** |
+
+Toda resposta de erro sai no formato `models/errors.py::ErrorResponse`
+(`code`, `message`, `path` e, em 422, `fields`), gerado pelos handlers em
+`core/exception_handlers.py` — não devolver `{"detail": ...}` solto nem montar
+JSON de erro na mão dentro das rotas. Cada rota declara esses retornos em
+`responses=` para que apareçam no Swagger.
 
 Regras invioláveis:
 - `owner_id` nunca vem do body; sempre de `current_user.id`.
@@ -135,11 +147,12 @@ permitiria que o atacante travasse a conta de um terceiro (negação de serviço
 
 ## 7. EDA — o que precisa ser decidido pela Pessoa 1
 
-Nenhuma das 4 hipóteses do TP1 é testável direto com t-test ou Mann-Whitney
-(a H1 pediria qui-quadrado; H3 e H4 não comparam grandezas numéricas).
+> Atualizado após o retorno do professor no TP1: as hipóteses da seção 6 do
+> notebook foram reescritas (ver [`CORRECOES_TP1.md`](CORRECOES_TP1.md)). Cada
+> uma agora já traz o teste que a verifica.
 
-**Decisão:** adaptar a **H2** ("as intenções se dividem em um eixo técnico e um
-eixo comercial") para uma comparação numérica e testar com **Mann-Whitney**:
+**Decisão:** o teste de hipótese formal exigido pelo TP2 é o da **H2**, com
+**Mann-Whitney**:
 
 > Entre os tickets `Closed`, a satisfação do cliente (`Customer Satisfaction
 > Rating`) difere entre tickets de intenção **técnica** e de intenção
@@ -149,6 +162,10 @@ Mann-Whitney em vez de t-test porque a nota de satisfação é ordinal de 1 a 5 
 não tem distribuição normal. Interpretar o p-valor em linguagem acessível e —
 importante — comentar que, sendo um dataset sintético, um resultado não
 significativo é um achado esperado e igualmente válido de reportar.
+
+As demais hipóteses pedem **qui-quadrado** e podem entrar como análise
+complementar (a H3, em especial, já tem p ≈ 0,98 e é o achado de maior impacto
+para a modelagem: os dois campos de rótulo são independentes entre si).
 
 Entregáveis da Pessoa 1: heatmap de correlação, pelo menos 2 scatter plots, o
 teste de hipótese com p-valor interpretado, e o `docs/relatorio_eda.md` com as
