@@ -1,0 +1,8 @@
+# Dependências do notebook de EDA (Pessoa 1).
+# Versões com piso mínimo, não fixas: o notebook não é sensível a patch.
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.7
+seaborn>=0.13
+scipy>=1.11
+jupyter>=1.0
